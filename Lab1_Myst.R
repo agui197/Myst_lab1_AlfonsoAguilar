@@ -1,8 +1,7 @@
 # Laboratorio 1
 
-
-#remover objetos del enviroment
-
+# Remover todos los objetos del "Environment"
+rm(list = ls())
 
 ###Cargar librerias a utilizar
 (library(plotly))  #graficas interactivas
@@ -29,7 +28,7 @@ Bajar_Precios <- function(Columns, Tickers, Fecha_In, Fecha_Fn) {
   # -- Fecha_Fn : Fecha Final : character : "2017-08-02"
   
   # Peticion para descargar precios
-  Datos <- Quandl.datatable(code = "WIKI/PRICES", qopts.columns=Columns, ticker=Tickers,
+  Datos <- Quandl.datatable("WIKI/PRICES", qopts.columns=Columns, ticker=Tickers,
                             date.gte=Fecha_In, date.lte=Fecha_Fn)
   return(Datos)
 }
@@ -48,5 +47,9 @@ for(i in 1:length(tk)){
 }
 names(Datos) <- tk
 
+for(i in 1:length(tk))
+  Datos[[i]]$adj_close_r <- c(0, diff(log(Datos[[i]]$adj_close)))
 
-
+Rends <- xts(x = cbind(Datos[[1]]$adj_close_r, Datos[[2]]$adj_close_r, Datos[[3]]$adj_close_r),
+             order.by = Datos[[1]]$date)[-1]
+names(Rends) <- tk
