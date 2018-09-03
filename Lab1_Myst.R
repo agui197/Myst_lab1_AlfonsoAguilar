@@ -57,20 +57,29 @@ names(Rends) <- tk
 Port1 <- portfolio.spec(assets=tk)
 
 Port1 <- add.constraint(portfolio = Port1,
-                        type = "full_investment")
+                        type = "leverage",
+                        min_sum=.99,max_sum=1.01)
 
 # Restriccion 2: Limites superior e inferior para el valor de pesos
-Port <- add.constraint(portfolio = Port1,
-                       type = "box",
-                       min=c(0.01,0.01,0.01),max=c(0.7,0.7,0.7))
-
-Port1 <- add.objective(portfolio = Port1,type = "return",name = "mean")
-
-Port1 <- optimize.portfolio(R = Rends,portfolio = Port1,optimize_method = "random",
-                            trace=TRUE,search_size = 500)
+Port1 <- add.constraint(portfolio=Port1,
+                        type="box", 
+                        min=c(0.01, 0.01, 0.01), max=c(0.7, 0.7, 0.7))
 
 
+Port1 <- add.objective(portfolio=Port1, type="return", name="mean")
 
+Port1 <- optimize.portfolio(R=Rends, portfolio=Port1, optimize_method="random",
+                            trace=TRUE, search_size=5000)
+
+
+Portafolios <- vector("list", length = length(Port1$random_portfolio_objective_results))
+
+for(i in 1:length(Port1$random_portfolio_objective_results)) {
+  Portafolios[[i]]$Pesos  <- Port1$random_portfolio_objective_results[[i]]$weights
+  Portafolios[[i]]$Medias <- Port1$random_portfolio_objective_results[[i]]$objective_measures$mean
+  Portafolios[[i]]$Vars   <- var.portfolio(R = Port1$R, weights = Portafolios[[i]]$Pesos)
+  names(Portafolios[[i]]$Medias) <- NULL
+}
 
 
 
