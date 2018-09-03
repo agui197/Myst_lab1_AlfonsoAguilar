@@ -14,6 +14,10 @@ rm(list = ls())
 
 options(knitr.table.format = "html") 
 
+# Capital inicial a considerar
+Capital_Inicial <- 100000
+Comision <- 0.005
+
 # Cargar el token de QUANDL
 Quandl.api_key("Us_v4rfs-m_kLT1skgsQ")
 
@@ -69,7 +73,7 @@ Port1 <- add.constraint(portfolio=Port1,
 Port1 <- add.objective(portfolio=Port1, type="return", name="mean")
 
 Port1 <- optimize.portfolio(R=Rends, portfolio=Port1, optimize_method="random",
-                            trace=TRUE, search_size=5000)
+                            trace=TRUE, search_size=500)
 
 
 Portafolios <- vector("list", length = length(Port1$random_portfolio_objective_results))
@@ -79,7 +83,29 @@ for(i in 1:length(Port1$random_portfolio_objective_results)) {
   Portafolios[[i]]$Medias <- Port1$random_portfolio_objective_results[[i]]$objective_measures$mean
   Portafolios[[i]]$Vars   <- var.portfolio(R = Port1$R, weights = Portafolios[[i]]$Pesos)
   names(Portafolios[[i]]$Medias) <- NULL
+  
+  #al ser una lista portafolios es necesario que al i-esimo elemento se le tienen que poner corchetes
 }
 
+df_Portafolios <- data.frame(matrix(nrow=length(Port1$random_portfolio_objective_results),
+                                    ncol=3, data = 0))
+colnames(df_Portafolios) <- c("Rend","Var","Clase")
+
+
+for(i in 1:length(Port1$random_portfolio_objective_results)) {
+  
+  df_Portafolios$Rend[i] <- round(Portafolios[[i]]$Medias*252,4)
+  df_Portafolios$Var[i]  <- round(sqrt(Portafolios[[i]]$Vars)*sqrt(252),4)
+  df_Portafolios$Clase[i] <- "No-Frontera"
+  
+  for(k in 1:length(tk)) {
+    df_Portafolios[i,paste("Peso_", tk[k],sep="")] <- Portafolios[[i]]$Pesos[k]
+    
+    df_Portafolios[i,paste("Titulos_ini_", tk[k],sep="")] <-
+      (Capital_Inicial*Portafolios[[i]]$Pesos[k])%/%Datos[[k]]$adj_close[1]
+  }
+  
+  
+}
 
 
