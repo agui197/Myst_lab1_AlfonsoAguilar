@@ -79,12 +79,15 @@ Datos[[1]] <-temp[[1]]$Date[1]
 Datos[[2]] <-temp[[2]]$Date[1]
 Datos[[3]] <-temp[[3]]$Date[1]
 
-Datos[[1]]$date <- temp[[1]]$Date[1:250]
-Datos[[1]]$adj_close <- temp[[1]]$Adj_Close[1:250]
-Datos[[2]]$date <- temp[[2]]$Date[1:250]
-Datos[[2]]$adj_close <- temp[[2]]$Adj_Close[1:250]
-Datos[[3]]$date <- temp[[3]]$Date[1:250]
-Datos[[3]]$adj_close <- temp[[3]]$Adj_Close[1:250]
+
+
+###Los datos se deben de voltear porque tenemos en el primer dato el mas nuevo
+Datos[[1]]$date <- rev(temp[[1]]$Date[1:250])
+Datos[[1]]$adj_close <- rev(temp[[1]]$Adj_Close[1:250])
+Datos[[2]]$date <- rev(temp[[2]]$Date[1:250])
+Datos[[2]]$adj_close <- rev(temp[[2]]$Adj_Close[1:250])
+Datos[[3]]$date <- rev(temp[[3]]$Date[1:250])
+Datos[[3]]$adj_close <- rev(temp[[3]]$Adj_Close[1:250])
 
 
 
