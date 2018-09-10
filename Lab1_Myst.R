@@ -12,7 +12,52 @@ rm(list = ls())
 (library(kableExtra))  #tablas en HTML
 
 
-options(knitr.table.format = "html") 
+
+
+# 
+# options(knitr.table.format = "html") 
+# 
+# # Capital inicial a considerar
+# Capital_Inicial <- 100000
+# Comision <- 0.005
+# 
+# # Cargar el token de QUANDL
+# Quandl.api_key("Us_v4rfs-m_kLT1skgsQ")
+# 
+# # Funcion para descagar precios
+# Bajar_Precios <- function(Columns, Tickers, Fecha_In, Fecha_Fn) {
+#   
+#   # Funcion para descargar N cantidad de activos desde QUANDL
+#   # -- Dependencias: QUANDL
+#   # -- Columns : columnas a incluir : character : c("date", "adj_close", ... )
+#   # -- Tickers : Tickers o claves de pizarra de los activos : character : "TSLA"
+#   # -- Fecha_In : Fecha Inicial : character : "2017-01-02"
+#   # -- Fecha_Fn : Fecha Final : character : "2017-08-02"
+#   
+#   # Peticion para descargar precios
+#   Datos <- Quandl.datatable("WIKI/PRICES", qopts.columns=Columns, ticker=Tickers,
+#                             date.gte=Fecha_In, date.lte=Fecha_Fn)
+#   return(Datos)
+# }
+# #tickers de accciones y datos a solicitar
+# #tk <- c("TSLA","BBY","HD")
+# cs <-c("date","adj_close")
+# 
+# 
+# #fecha inicial y fecha inicial
+# fs <- c("2015-08-01","2016-08-01")
+# 
+# #descargar precios
+# Datos <- list()
+# temp <-list()
+# 
+# for(i in 1:length(tk)){
+#   Datos[[i]] <- Bajar_Precios(Columns = cs,Tickers = tk[i],Fecha_In = fs[1],Fecha_Fn = fs[2])
+# }
+
+#################
+#EJERCICIO CON DIFERENTES ACTIVOS Y UNA BASE DE DATOS ACTUALIZADA
+#################
 
 # Capital inicial a considerar
 Capital_Inicial <- 100000
@@ -20,39 +65,34 @@ Comision <- 0.005
 
 # Cargar el token de QUANDL
 Quandl.api_key("Us_v4rfs-m_kLT1skgsQ")
-
-# Funcion para descagar precios
-Bajar_Precios <- function(Columns, Tickers, Fecha_In, Fecha_Fn) {
-  
-  # Funcion para descargar N cantidad de activos desde QUANDL
-  # -- Dependencias: QUANDL
-  # -- Columns : columnas a incluir : character : c("date", "adj_close", ... )
-  # -- Tickers : Tickers o claves de pizarra de los activos : character : "TSLA"
-  # -- Fecha_In : Fecha Inicial : character : "2017-01-02"
-  # -- Fecha_Fn : Fecha Final : character : "2017-08-02"
-  
-  # Peticion para descargar precios
-  Datos <- Quandl.datatable("WIKI/PRICES", qopts.columns=Columns, ticker=Tickers,
-                            date.gte=Fecha_In, date.lte=Fecha_Fn)
-  return(Datos)
-}
-#tickers de accciones y datos a solicitar
-tk <- c("TSLA","BBY","HD")
-cs <-c("date","adj_close")
-
-#fecha inicial y fecha inicial
-fs <- c("2015-08-01","2016-08-01")
-
-#descargar precios
+# acciones para ejercicio
+tk <- c("DIS","BA","MMM")
 Datos <- list()
+temp <-list()
 
-for(i in 1:length(tk)){
-  Datos[[i]] <- Bajar_Precios(Columns = cs,Tickers = tk[i],Fecha_In = fs[1],Fecha_Fn = fs[2])
-}
-names(Datos) <- tk
+
+temp[[1]] <- Quandl("EOD/DIS")
+temp[[2]] <-Quandl("EOD/BA")
+temp[[3]] <-Quandl("EOD/MMM")
+
+Datos[[1]] <-temp[[1]]$Date[1]
+Datos[[2]] <-temp[[2]]$Date[1]
+Datos[[3]] <-temp[[3]]$Date[1]
+
+Datos[[1]]$date <- temp[[1]]$Date[1:250]
+Datos[[1]]$adj_close <- temp[[1]]$Adj_Close[1:250]
+Datos[[2]]$date <- temp[[2]]$Date[1:250]
+Datos[[2]]$adj_close <- temp[[2]]$Adj_Close[1:250]
+Datos[[3]]$date <- temp[[3]]$Date[1:250]
+Datos[[3]]$adj_close <- temp[[3]]$Adj_Close[1:250]
+
+
+
+
 
 for(i in 1:length(tk))
   Datos[[i]]$adj_close_r <- c(0, diff(log(Datos[[i]]$adj_close)))
+
 
 Rends <- xts(x = cbind(Datos[[1]]$adj_close_r, Datos[[2]]$adj_close_r, Datos[[3]]$adj_close_r),
              order.by = Datos[[1]]$date)[-1]
